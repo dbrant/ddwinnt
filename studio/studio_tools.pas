@@ -24,7 +24,7 @@ function SaveDiskResource(ExeName : String; Name : TStringList; Data : TStringLi
 procedure CreateExe(FileName : String; Stub : String);
 procedure ShowError(Action : String);
 function GetSize(h : THandle) : Int64;
-procedure DoDD(InFile : String; OutFile : String; BlockSize : Int64; Count : Int64; Skip : Int64; Seek : int64; NoTruncateOut : Boolean; StopType : Boolean; Callback : ProgressEvent);
+procedure DoDD(InFile : String; OutFile : String; BlockSize : Int64; Count : Int64; Skip : Int64; Seek : int64; NoTruncateOut : Boolean; StopType : Boolean; NumRetries : Int64 ; Callback : ProgressEvent);
 function StartsWith(S : String; Start : String; var Value : String) : Boolean;
 function EndsWith(S : String; Ends : String; var Value : String) : Boolean;
 function GetDriveStrings(StringList : TStringList) : Boolean;
@@ -187,7 +187,7 @@ begin
    begin
       Stub := LoadDiskResource('STUB');
       try
-         Stub := Zlib.ZDecompressStr(Stub);
+        // Stub := Zlib.ZDecompressStr(Stub);
       except
       end;
       if Length(Stub) = 0 then
@@ -270,7 +270,7 @@ begin
                      Log('Loading ' + Chopper[0]);
                      Data := LoadDiskFile(Chopper[0]);
                      Checksum := MD5Print(MD5String(Data));
-                     ZData := ZCompressStr(Data, zcMax);
+                   //  ZData := ZCompressStr(Data, zcMax);
 
                      DiskName := 'DISK' + IntToStr(i);
                      Chopper.Add(DiskName);
@@ -299,7 +299,7 @@ begin
          end;
 
 // we could compress the config info but it makes it hard to debug
-         DataList.Add(ZCompressStr(Config.Text, zcMax));
+    //     DataList.Add(ZCompressStr(Config.Text, zcMax));
          NameList.Add('DISKINFO');
          DataList.Add(Config.Text);
 
@@ -362,7 +362,7 @@ begin
    end;
 end;
 
-procedure DoDD(InFile : String; OutFile : String; BlockSize : Int64; Count : Int64; Skip : Int64; Seek : int64; NoTruncateOut : Boolean; StopType : Boolean; Callback : ProgressEvent);
+procedure DoDD(InFile : String; OutFile : String; BlockSize : Int64; Count : Int64; Skip : Int64; Seek : int64; NoTruncateOut : Boolean; StopType : Boolean; NumRetries : Int64; Callback : ProgressEvent);
 var
    InBinFile   : TBinaryFile;
    OutBinFile  : TBinaryFile;
@@ -387,6 +387,7 @@ var
 
    Buffer : String;
    i : Integer;
+   retry: Integer;
 
    FullBlocksIn : Int64;
    HalfBlocksIn : Int64;
@@ -628,9 +629,30 @@ begin
             end
             else
             begin
-               Actual := InBinFile.BlockRead2(PChar(Buffer), ThisBlock);
+
+               // Log('NumRetries = ' + IntToStr(NumRetries));
+               for retry := 0 to NumRetries do
+               begin
+                  Actual := InBinFile.BlockRead2(PChar(Buffer), ThisBlock);
+                  if Actual = 0 then
+                  begin
+                     if Windows.GetLastError = 0 then
+                     begin
+                        break;
+                     end;
+                  end
+                  else
+                  begin
+                     break;
+                  end;
+                  Log('Retrying...');
+               end;
+
+
             end;
             //Log('actual = ' + IntToStr(Actual));
+
+
             if Actual = BlockSize then
             begin
                FullBlocksIn := FullBlocksIn + 1;
@@ -654,6 +676,9 @@ begin
                end;
                break;
             end;
+
+
+            
 
             // write the output...
             //Log('Writing block ' + IntToStr(i) + ' len = ' + IntToStr(Actual));
