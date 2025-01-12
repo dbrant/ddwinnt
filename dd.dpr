@@ -119,7 +119,7 @@ end;
 
 procedure PrintUsage;
 begin
-   Log('dd [bs=SIZE] [count=BLOCKS] [if=FILE] [of=FILE] [seek=BLOCKS] [skip=BLOCKS] [--size] [--list] [--progress]');
+   Log('dd [bs=SIZE] [count=BLOCKS] [if=FILE] [of=FILE] [seek=BLOCKS] [skip=BLOCKS] [retries=COUNT] [--size] [--list] [--progress]');
    Log('SIZE and BLOCKS may have one of the following suffix:');
    Log(' k = 1024');
    Log(' M = 1048576');
