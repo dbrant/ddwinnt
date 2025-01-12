@@ -1,0 +1,2 @@
+Super GRUB Boot Disks
+sgden.img,"x86 boot disk","Super GRUB Boot Floppy",TRUE

@@ -1,0 +1,6 @@
+CentOS-2 Boot Disks
+boot.img,"x86 boot disk","For CD install where booting from CD is not supported",TRUE
+drvblock.img,"x86 driver disk","Extra block device drivers",FALSE
+bootnet.img,"x86 network boot disk","For Network installs",FALSE
+drvnet.img,"x86 network driver disk","Extra network card drivers",FALSE
+
