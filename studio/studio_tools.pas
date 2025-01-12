@@ -33,9 +33,9 @@ function GetDriveTypeDescription(DriveType : Integer) : String;
 implementation
 
 {$IFDEF WIN32}
-uses zlib, sysutils, debug, native, winbinfile, diskio, md5, dialogs, winioctl, persrc, MT19937;
+uses sysutils, debug, native, winbinfile, diskio, md5, dialogs, winioctl, persrc, MT19937;
 {$ELSE}
-uses zlib, sysutils, debug, UnixBinFile, md5, persrc;
+uses sysutils, debug, UnixBinFile, md5, persrc;
 {$ENDIF}
 
 procedure ShowError(Action : String);
