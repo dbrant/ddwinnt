@@ -195,7 +195,7 @@ function LoadLib16(LibFileName: String): THandle;
 begin
   Result := LoadLibrary16(PChar(LibFileName));
   if Result < HInstance_Error then
-    raise EFOpenError.Create('LoadLibrary16 failed!');
+    raise EInvalidProc.Create('LoadLibrary16 failed!');
 end;
 
 function GDI16Handle: THandle;

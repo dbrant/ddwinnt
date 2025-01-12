@@ -32,6 +32,7 @@ var
    Skip         : Int64;
    BlockSize    : Int64;
    BlockUnit    : String;
+   NumRetries   : Int64;
    Progress     : Boolean;
    CheckSize    : Boolean;
    Unmounts     : TStringList;
@@ -902,6 +903,7 @@ begin
    Count     := -1;
    BlockSize := 512;
    BlockUnit := '';
+   NumRetries := 1;
    Seek      := 0;
    Skip      := 0;
    Progress  := False;
@@ -971,6 +973,10 @@ begin
       else if StartsWith(Parameters[i], 'skip=', Value) then
       begin
          Skip := GetBlockSize(Value);
+      end
+      else if StartsWith(Parameters[i], 'retries=', Value) then
+      begin
+         NumRetries := GetBlockSize(Value);
       end
       else if StartsWith(Parameters[i], 'bs=', Value) then
       begin
@@ -1059,7 +1065,9 @@ begin
       end;
    end;
 
-//   Log('Action is ' + Action);
+   Log('Action is ' + Action);
+   Log('Retries: ' + IntToStr(NumRetries));
+
    if Action = 'usage' then
    begin
       PrintUsage;
@@ -1091,12 +1099,12 @@ begin
             ProgressCallback.BlockSize := BlockSize;
             ProgressCallback.Count := Count;
             ProgressCallback.SetUnit(BlockUnit);
-            DoDD(InFile, OutFile, BlockSize, Count, Skip, Seek, Onotrunc, CheckSize, ProgressCallback.DDProgress);
+            DoDD(InFile, OutFile, BlockSize, Count, Skip, Seek, Onotrunc, CheckSize, NumRetries, ProgressCallback.DDProgress);
             ProgressCallback.Free;
          end
          else
          begin
-            DoDD(InFile, OutFile, BlockSize, Count, Skip, Seek, Onotrunc, CheckSize, nil);
+            DoDD(InFile, OutFile, BlockSize, Count, Skip, Seek, Onotrunc, CheckSize, NumRetries, nil);
          end;
       end
       else
