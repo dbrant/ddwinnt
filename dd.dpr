@@ -905,7 +905,7 @@ begin
    Count     := -1;
    BlockSize := 512;
    BlockUnit := '';
-   NumRetries := 1;
+   NumRetries := 0;
    Seek      := 0;
    Skip      := 0;
    Progress  := False;
@@ -1077,7 +1077,10 @@ begin
    end;
 
    Log('Action is ' + Action);
-   Log('Retries: ' + IntToStr(NumRetries));
+   if NumRetries > 0 then
+   begin
+      Log('Retries: ' + IntToStr(NumRetries));
+   end;
    if ConvSync then
    begin
       Log('Conv: will pad bad blocks.');
