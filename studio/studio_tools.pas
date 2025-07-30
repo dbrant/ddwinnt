@@ -630,6 +630,8 @@ begin
             else
             begin
 
+
+
                // Log('NumRetries = ' + IntToStr(NumRetries));
                for retry := 0 to NumRetries do
                begin
@@ -647,6 +649,16 @@ begin
                   end;
                   Log('Retrying...');
                end;
+
+               if (Actual = 0) and (NumRetries > 2) then
+               begin
+                  Log('Skipping block ' + IntToStr(i) + ' and writing pad bytes.');
+                  InBinFile.Seek(InBinFile.GetPos + ThisBlock);
+                  FillMemory(PChar(Buffer), ThisBlock, 0);
+                  Actual := ThisBlock;
+               end;
+
+
 
 
             end;
