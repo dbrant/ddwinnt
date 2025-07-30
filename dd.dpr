@@ -40,6 +40,8 @@ var
    Onocreat     : Boolean;
    Onotrunc     : Boolean;
    Oexcl        : Boolean;
+   ConvSync     : Boolean;
+   ConvNoError  : Boolean;
 
    idod_BlockSize : String;
    idod_size : Boolean;
@@ -911,6 +913,8 @@ begin
    Unmounts  := TStringList.Create;
    InFile    := '-';
    OutFile   := '-';
+   ConvSync  := False;
+   ConvNoError := False;
 
 
    for i := 1 to ParamCount do
@@ -990,7 +994,14 @@ begin
          Chopper.CommaText := Value;
          for j := 0 to Chopper.Count - 1 do
          begin
-            Log(Chopper[j]);
+            if Chopper[j] = 'sync' then
+            begin
+               ConvSync := True;
+            end
+            else if Chopper[j] = 'noerror' then
+            begin
+               ConvNoError := True;
+            end;
          end;
          Chopper.Free;
       end
@@ -1067,6 +1078,14 @@ begin
 
    Log('Action is ' + Action);
    Log('Retries: ' + IntToStr(NumRetries));
+   if ConvSync then
+   begin
+      Log('Conv: will pad bad blocks.');
+   end;
+   if ConvNoError then
+   begin
+      Log('Conv: will ignore errors.');
+   end;
 
    if Action = 'usage' then
    begin
@@ -1099,12 +1118,12 @@ begin
             ProgressCallback.BlockSize := BlockSize;
             ProgressCallback.Count := Count;
             ProgressCallback.SetUnit(BlockUnit);
-            DoDD(InFile, OutFile, BlockSize, Count, Skip, Seek, Onotrunc, CheckSize, NumRetries, ProgressCallback.DDProgress);
+            DoDD(InFile, OutFile, BlockSize, Count, Skip, Seek, Onotrunc, CheckSize, NumRetries, ConvSync, ConvNoError, ProgressCallback.DDProgress);
             ProgressCallback.Free;
          end
          else
          begin
-            DoDD(InFile, OutFile, BlockSize, Count, Skip, Seek, Onotrunc, CheckSize, NumRetries, nil);
+            DoDD(InFile, OutFile, BlockSize, Count, Skip, Seek, Onotrunc, CheckSize, NumRetries, ConvSync, ConvNoError, nil);
          end;
       end
       else

@@ -24,7 +24,7 @@ function SaveDiskResource(ExeName : String; Name : TStringList; Data : TStringLi
 procedure CreateExe(FileName : String; Stub : String);
 procedure ShowError(Action : String);
 function GetSize(h : THandle) : Int64;
-procedure DoDD(InFile : String; OutFile : String; BlockSize : Int64; Count : Int64; Skip : Int64; Seek : int64; NoTruncateOut : Boolean; StopType : Boolean; NumRetries : Int64 ; Callback : ProgressEvent);
+procedure DoDD(InFile : String; OutFile : String; BlockSize : Int64; Count : Int64; Skip : Int64; Seek : int64; NoTruncateOut : Boolean; StopType : Boolean; NumRetries : Int64; ConvSync : Boolean; ConvNoError : Boolean; Callback : ProgressEvent);
 function StartsWith(S : String; Start : String; var Value : String) : Boolean;
 function EndsWith(S : String; Ends : String; var Value : String) : Boolean;
 function GetDriveStrings(StringList : TStringList) : Boolean;
@@ -362,7 +362,7 @@ begin
    end;
 end;
 
-procedure DoDD(InFile : String; OutFile : String; BlockSize : Int64; Count : Int64; Skip : Int64; Seek : int64; NoTruncateOut : Boolean; StopType : Boolean; NumRetries : Int64; Callback : ProgressEvent);
+procedure DoDD(InFile : String; OutFile : String; BlockSize : Int64; Count : Int64; Skip : Int64; Seek : int64; NoTruncateOut : Boolean; StopType : Boolean; NumRetries : Int64; ConvSync : Boolean; ConvNoError : Boolean; Callback : ProgressEvent);
 var
    InBinFile   : TBinaryFile;
    OutBinFile  : TBinaryFile;
@@ -650,9 +650,9 @@ begin
                   Log('Retrying...');
                end;
 
-               if (Actual = 0) and (NumRetries > 2) then
+               if (Actual = 0) and (Windows.GetLastError > 0) and (ConvNoError) then
                begin
-                  Log('Skipping block ' + IntToStr(i) + ' and writing pad bytes.');
+                  Log('Ignoring error at block ' + IntToStr(i) + ' and padding with zeros.');
                   InBinFile.Seek(InBinFile.GetPos + ThisBlock);
                   FillMemory(PChar(Buffer), ThisBlock, 0);
                   Actual := ThisBlock;
