@@ -635,6 +635,12 @@ begin
                // Log('NumRetries = ' + IntToStr(NumRetries));
                for retry := 0 to NumRetries do
                begin
+                  if retry > 0 then
+                  begin
+                     ShowError('Reading block ' + IntToStr(i));
+                     Log('Retrying...');
+                  end;
+
                   Actual := InBinFile.BlockRead2(PChar(Buffer), ThisBlock);
                   if Actual = 0 then
                   begin
@@ -647,7 +653,6 @@ begin
                   begin
                      break;
                   end;
-                  Log('Retrying...');
                end;
 
                if (Actual = 0) and (Windows.GetLastError > 0) and (ConvNoError) then
